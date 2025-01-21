@@ -1,0 +1,66 @@
+openapi: 3.1.0
+x-stoplight:
+  id: xd5du11mbtlej
+info:
+  title: tg-form
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /api/v1/form:
+    post:
+      summary: ''
+      operationId: post-api-v1-form
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+      parameters:
+        - schema:
+            type: string
+            example: tma initData
+          in: header
+          name: authorization
+          description: Заголовок должен содержать initData
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  x-stoplight:
+                    id: mfqfihmw3380j
+                  description: |
+                    Имя пользователя
+                  example: Максим
+                  minLength: 1
+                  maxLength: 128
+                  writeOnly: true
+                feedback:
+                  type: string
+                  x-stoplight:
+                    id: ffikmlp35673t
+                  description: 'Предпочтительный способ связи. По-умолчанию телеграм аккаунт, с которого оставлена заявка.'
+                  minLength: 0
+                  maxLength: 256
+                  writeOnly: true
+                comment:
+                  type: string
+                  x-stoplight:
+                    id: he4fvqqztbtx3
+                  description: Дополнительные делати по заказу
+                  minLength: 0
+                  maxLength: 512
+              required:
+                - name
+        description: ''
+components:
+  schemas: {}
