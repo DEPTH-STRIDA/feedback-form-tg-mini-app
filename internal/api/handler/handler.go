@@ -21,8 +21,8 @@ func NewHandler(repo repository.Repository, service *service.Service) *Handler {
 	}
 }
 
-// GetUser возвращает информацию о пользователе
-func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
+// HandleNewForm создает новую заявку от пользователя
+func (h *Handler) HandleNewForm(w http.ResponseWriter, r *http.Request) {
 	user, err := middleware.GetUserFromContext(r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -31,5 +31,4 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
 }

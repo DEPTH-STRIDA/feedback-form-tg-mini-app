@@ -2,10 +2,8 @@ package middleware
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
-	u "nstu/internal/api/utils"
 	"nstu/internal/logger"
 	"nstu/internal/model"
 	"nstu/internal/service"
@@ -31,56 +29,57 @@ const (
 )
 
 // AuthMiddleware проверяет наличие токена в заголовке и возвращает ошибку, если токен не найден
-func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// token := r.Header.Get("Authorization")
-		// if token == "" {
-		// 	logger.Log.Error().
-		// 		Msg("Empty token")
-		// 	w.WriteHeader(http.StatusUnauthorized)
-		// 	json.NewEncoder(w).Encode(u.NewResponse("error", "Empty token"))
-		// 	return
-		// }
+func AuthMiddleware(service *service.Service) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// token := r.Header.Get("Authorization")
+			// if token == "" {
+			// 	logger.Log.Error().
+			// 		Msg("Empty token")
+			// 	w.WriteHeader(http.StatusUnauthorized)
+			// 	json.NewEncoder(w).Encode(u.NewResponse("error", "Empty token"))
+			// 	return
+			// }
 
-		// // Разбиваем токен на части
-		// parts := strings.SplitN(token, " ", 2)
-		// if len(parts) != 2 || parts[0] != "tma" {
-		// 	logger.Log.Error().
-		// 		Msg("Неверный формат токена")
-		// 	w.WriteHeader(http.StatusUnauthorized)
-		// 	json.NewEncoder(w).Encode(u.NewResponse("error", "Invalid token format"))
-		// 	return
-		// }
+			// // Разбиваем токен на части
+			// parts := strings.SplitN(token, " ", 2)
+			// if len(parts) != 2 || parts[0] != "tma" {
+			// 	logger.Log.Error().
+			// 		Msg("Неверный формат токена")
+			// 	w.WriteHeader(http.StatusUnauthorized)
+			// 	json.NewEncoder(w).Encode(u.NewResponse("error", "Invalid token format"))
+			// 	return
+			// }
 
-		// user, err := m.service.AuthInitData(parts[1])
-		// if err != nil {
-		// 	logger.Log.Error().
-		// 		Err(err).
-		// 		Msg("Ошибка аутентификации")
-		// 	w.WriteHeader(http.StatusUnauthorized)
-		// 	json.NewEncoder(w).Encode(u.NewResponse("error", err.Error()))
-		// 	return
-		// }
+			// user, err := service.AuthInitData(parts[1])
+			// if err != nil {
+			// 	logger.Log.Error().
+			// 		Err(err).
+			// 		Msg("Ошибка аутентификации")
+			// 	w.WriteHeader(http.StatusUnauthorized)
+			// 	json.NewEncoder(w).Encode(u.NewResponse("error", err.Error()))
+			// 	return
+			// }
 
-		///////////////////////////////////////////////////////////////////////////////
-		user, err := m.service.AuthInitData("")
-		if err != nil {
-			logger.Log.Error().
-				Err(err).
-				Msg("Ошибка аутентификации")
-			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(u.NewResponse("error", err.Error()))
-			return
-		}
-		///////////////////////////////////////////////////////////////////////////////
+			///////////////////////////////////////////////////////////////////////////////
+			user, err := service.AuthInitData("")
+			if err != nil {
+				logger.Log.Error().
+					Err(err).
+					Msg("Ошибка аутентификации")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			///////////////////////////////////////////////////////////////////////////////
 
-		// Добавляем пользователя в контекст
-		ctx := context.WithValue(r.Context(), userContextKey, user)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+			// Добавляем пользователя в контекст
+			ctx := context.WithValue(r.Context(), userContextKey, user)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
-// Вспомогательная функция для получения пользователя из контекста
+// GetUserFromContext получает пользователя из контекста
 func GetUserFromContext(ctx context.Context) (*model.User, error) {
 	user, ok := ctx.Value(userContextKey).(*model.User)
 	if !ok {

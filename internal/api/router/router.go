@@ -1,46 +1,30 @@
 package router
 
 import (
+	"net/http"
 	"nstu/internal/api/handler"
 	"nstu/internal/api/middleware"
 	"nstu/internal/service"
 
-	"time"
-
 	"github.com/gorilla/mux"
+	"golang.org/x/time/rate"
 )
 
 func NewRouter(h *handler.Handler, service *service.Service) *mux.Router {
 	r := mux.NewRouter()
 
-	m := middleware.NewMiddleware(service)
-
-	// Создаем rate limiter: 1 запрос в секунду
-	rateLimiter := middleware.NewRateLimiter(
-		5,             // 1 запрос
-		time.Second,   // за 1 секунду
-		5*time.Minute, // очистка старых записей каждые 5 минут
-	)
-
-	// Применяем middleware в порядке:
-	// 1. CORS - для всех запросов
-	r.Use(m.CORSMiddleware)
-	// 2. Логгер - для всех запросов
-	r.Use(middleware.LoggerMiddleware)
-	// 3. Rate Limiter - ограничиваем количество запросов
-	r.Use(rateLimiter.RateLimitMiddleware)
-	// 4. JSON заголовки
-	r.Use(middleware.JSONMiddleware)
-	// 5. Recover - для обработки паник
-	r.Use(middleware.RecoverMiddleware)
+	// Global middleware
+	r.Use(middleware.LoggerMiddleware())                     // 1 - логируем все
+	r.Use(middleware.RateLimitMiddleware(rate.Limit(5), 10)) // 2 - проверяем лимиты
+	r.Use(middleware.CORSMiddleware())                       // 3 - настраиваем CORS
+	r.Use(middleware.RecoverMiddleware())                    // 4 - перехватываем панику
 
 	// API routes
 	api := r.PathPrefix("/api/v1").Subrouter()
-	// 6. Аутентификация для API маршрутов
-	api.Use(m.AuthMiddleware)
+	api.Use(middleware.AuthMiddleware(service)) // 5 - проверяем авторизацию
 
 	// Пользователи
-	api.HandleFunc("/user", h.GetUser).Methods("GET")
+	api.HandleFunc("/form", h.HandleNewForm).Methods(http.MethodPost)
 
 	return r
 }
