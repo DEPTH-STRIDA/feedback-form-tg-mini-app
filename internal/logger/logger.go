@@ -1,3 +1,4 @@
+// Package logger содержит настроенный логгер
 package logger
 
 import (

@@ -3,9 +3,10 @@ package main
 import (
 	"database/sql"
 	"embed"
-	"nstu/internal/config"
+	cnfModel "nstu/internal/config"
 	"nstu/internal/logger"
 	"nstu/internal/migrator"
+	cnfLoad "nstu/pkg/config"
 	"os"
 )
 
@@ -20,14 +21,9 @@ func main() {
 		envPath = os.Args[1]
 		logger.Log.Info().Str("env_path", envPath).Msg("Загружаем конфигурацию из .env файла")
 	}
-	// Загрузка переменных окружения
-	err := config.LoadEnv(envPath)
-	if err != nil {
-		logger.Log.Fatal().Err(err).Msg("Ошибка загрузки конфигурации")
-	}
-
+	dbCfg := &cnfModel.Database{}
 	// Загрузка конфигурации для БД
-	dbCfg, err := config.LoadDB()
+	err := cnfLoad.Load(envPath, dbCfg)
 	if err != nil {
 		logger.Log.Err(err).Msg("Ошибка загрузки конфигурации")
 	}

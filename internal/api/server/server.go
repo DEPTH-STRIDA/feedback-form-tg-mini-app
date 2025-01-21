@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"nstu/internal/logger"
-	"nstu/internal/service"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,19 +12,17 @@ import (
 
 type Server struct {
 	httpServer *http.Server
-	service    *service.Service
 }
 
-func NewServer(handler http.Handler, addr, port string, service *service.Service) *Server {
+func NewServer(handler http.Handler, addr string) *Server {
 	return &Server{
 		httpServer: &http.Server{
-			Addr:           addr + ":" + port,
+			Addr:           addr,
 			Handler:        handler,
 			ReadTimeout:    10 * time.Second,
 			WriteTimeout:   10 * time.Second,
 			MaxHeaderBytes: 1 << 20,
 		},
-		service: service,
 	}
 }
 

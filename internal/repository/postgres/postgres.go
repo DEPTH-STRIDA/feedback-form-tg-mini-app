@@ -3,13 +3,18 @@ package postgres
 
 import (
 	"fmt"
-	"nstu/internal/config"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-func NewPostgresDB(cfg config.DBConfig) (*sqlx.DB, error) {
+// Config интерфейс для конфигурации базы данных
+type Config interface {
+	URL() string
+}
+
+// NewPostgresDB создает новое подключение к базе данных
+func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
 	db, err := sqlx.Connect("postgres", cfg.URL())
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to db: %w", err)
@@ -18,6 +23,7 @@ func NewPostgresDB(cfg config.DBConfig) (*sqlx.DB, error) {
 	return db, nil
 }
 
+// PostgresRepository репозиторий для работы с базой данных
 type PostgresRepository struct {
 	*UserRepo
 	*FormRepo

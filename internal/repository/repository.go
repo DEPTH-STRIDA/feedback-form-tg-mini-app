@@ -1,3 +1,4 @@
+// Package repository содержит интерфейсы для работы с базой данных
 package repository
 
 import (

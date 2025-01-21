@@ -4,22 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"nstu/internal/logger"
 	"nstu/internal/model"
-	"nstu/internal/service"
 )
-
-// Middleware предоставляет функции для аутентификации и логирования
-type Middleware struct {
-	service *service.Service
-}
-
-// NewMiddleware создает новый экземпляр Middleware
-func NewMiddleware(service *service.Service) *Middleware {
-	return &Middleware{
-		service: service,
-	}
-}
 
 // Создаем тип ключа для контекста
 type contextKey string
@@ -29,7 +15,7 @@ const (
 )
 
 // AuthMiddleware проверяет наличие токена в заголовке и возвращает ошибку, если токен не найден
-func AuthMiddleware(service *service.Service) func(http.Handler) http.Handler {
+func AuthMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// token := r.Header.Get("Authorization")
@@ -62,18 +48,18 @@ func AuthMiddleware(service *service.Service) func(http.Handler) http.Handler {
 			// }
 
 			///////////////////////////////////////////////////////////////////////////////
-			user, err := service.AuthInitData("")
-			if err != nil {
-				logger.Log.Error().
-					Err(err).
-					Msg("Ошибка аутентификации")
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
+			// user, err := service.AuthInitData("")
+			// if err != nil {
+			// 	logger.Log.Error().
+			// 		Err(err).
+			// 		Msg("Ошибка аутентификации")
+			// 	w.WriteHeader(http.StatusUnauthorized)
+			// 	return
+			// }
 			///////////////////////////////////////////////////////////////////////////////
 
 			// Добавляем пользователя в контекст
-			ctx := context.WithValue(r.Context(), userContextKey, user)
+			ctx := context.WithValue(r.Context(), userContextKey, "user")
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

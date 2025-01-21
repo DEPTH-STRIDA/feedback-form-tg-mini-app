@@ -1,4 +1,4 @@
-// internal/model/model.go
+// Package model содержит модели данных
 package model
 
 import (
