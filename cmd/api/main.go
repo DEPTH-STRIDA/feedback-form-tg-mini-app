@@ -57,7 +57,7 @@ func main() {
 	srv := service.NewService(repo)
 
 	// Иницилизация бота
-	tg.InitBot(tgConf)
+	tg.InitBot(tgConf, srv.GetMessageChan())
 
 	handler := handler.NewHandler(srv)
 

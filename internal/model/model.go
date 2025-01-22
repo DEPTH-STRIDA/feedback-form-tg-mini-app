@@ -36,3 +36,8 @@ type Form struct {
 	Feedback string `json:"feedback" db:"feedback" sql:"type:varchar(256)" validate:"max=256"`           // Предпочтительный способ обратной связи
 	Comment  string `json:"comment" db:"comment" sql:"type:varchar(512)" validate:"max=512"`             // Комментарий к заявке
 }
+
+type Request struct {
+	Form Form
+	User User
+}

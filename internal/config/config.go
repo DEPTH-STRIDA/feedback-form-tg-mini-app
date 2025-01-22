@@ -4,6 +4,8 @@ package config
 import (
 	"fmt"
 	"net/url"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -52,13 +54,38 @@ type Telegram struct {
 	Token              string `envconfig:"TG_TOKEN" required:"true"`
 	ExpirationRow      int    `envconfig:"TG_EXPIRATION_HOURS" required:"true"`
 	CleanupIntervalRow int    `envconfig:"TG_CLEANUP_INTERVAL_MINUTES" required:"true"`
+	MessageChatsRow    string `envconfig:"TG_MESSAGE_CHATS" required:"true"`
 
+	MessageChats    []int64       `ignored:"true"`
 	Expiration      time.Duration `ignored:"true"`
 	CleanupInterval time.Duration `ignored:"true"`
 }
 
 func (c *Telegram) GetToken() string {
 	return c.Token
+}
+
+func (c *Telegram) GetMessageChats() *[]int64 {
+	// Разбиваем строку по запятым
+	strNumbers := strings.Split(c.MessageChatsRow, ",")
+	numbers := make([]int64, 0, len(strNumbers))
+
+	for _, str := range strNumbers {
+		// Убираем пробелы вокруг числа
+		str = strings.TrimSpace(str)
+		if str == "" {
+			continue
+		}
+
+		num, err := strconv.ParseInt(str, 10, 64)
+		if err != nil {
+			return &[]int64{}
+		}
+		numbers = append(numbers, num)
+	}
+	c.MessageChats = numbers
+
+	return &numbers
 }
 
 func (c *Telegram) GetExpiration() time.Duration {
