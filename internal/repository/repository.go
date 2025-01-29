@@ -2,7 +2,7 @@
 package repository
 
 import (
-	"nstu/internal/model"
+	"pet1/internal/model"
 )
 
 type Repository interface {
